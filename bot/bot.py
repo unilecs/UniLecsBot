@@ -12,9 +12,9 @@ Main_mark_up.row('Список задач', 'Поиск')
 Main_mark_up.row('Получить задачу по сложности', 'Книги')
 Main_mark_up.row('Отправить решение', 'Отправить отзыв')
 
-categoryes_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
-categoryes_mark_up.row('Легкие', 'Средние', 'Сложные')
-categoryes_mark_up.row('Отмена')
+categories_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
+categories_mark_up.row('Легкие', 'Средние', 'Сложные')
+categories_mark_up.row('Отмена')
 
 cancel_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 cancel_mark_up.row('Отмена')
@@ -46,7 +46,7 @@ def task_handler(message):
 
 @bot.message_handler(regexp='Получить задачу по сложности')
 def get_task(message):
-    bot.send_message(message.from_user.id, 'Выберите категорию.', reply_markup=categoryes_mark_up)
+    bot.send_message(message.from_user.id, 'Выберите категорию.', reply_markup=categories_mark_up)
     bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
 
 
@@ -56,7 +56,7 @@ def categories(message):
         bot.send_message(message.from_user.id, text, reply_markup=Main_mark_up, parse_mode="Markdown")
     except KeyError:
         text = 'Такой категории нет. Попробуйте еще раз.'
-        bot.send_message(message.from_user.id, text, reply_markup=categoryes_mark_up)
+        bot.send_message(message.from_user.id, text, reply_markup=categories_mark_up)
         bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
 
 
