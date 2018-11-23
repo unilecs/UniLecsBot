@@ -21,9 +21,11 @@ categories_mark_up.row('Отмена')
 cancel_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 cancel_mark_up.row('Отмена')
 
+
 def get_random_task(tasks):
     rand = randint(1, len(tasks))
     return tasks[rand - 1]
+
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -90,8 +92,10 @@ def feedback(message):
                          reply_markup=Main_mark_up)
         return
     time_at_now = time.strftime("%H:%M:%S %Y.%m.%d", time.localtime())
-    form = '''Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}'''.format(message.from_user.first_name, message.from_user.username, message.from_user.id, time_at_now,
-                        message.text)
+    form = '''Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}'''.format(message.from_user.first_name,
+                                                                               message.from_user.username,
+                                                                               message.from_user.id, time_at_now,
+                                                                               message.text)
     bot.send_message('@unilecs_test', form)
     bot.send_message(message.from_user.id, 'Спасибо за ваш отзыв. Выберите следующее действие.',
                      reply_markup=Main_mark_up)
@@ -111,8 +115,10 @@ def solution(message):
                          reply_markup=Main_mark_up)
         return
     time_at_now = time.strftime("%H:%M:%S %Y.%m.%d", time.localtime())
-    form = '''Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}'''.format(message.from_user.first_name, message.from_user.username, message.from_user.id, time_at_now,
-                        message.text)
+    form = '''Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}'''.format(message.from_user.first_name,
+                                                                               message.from_user.username,
+                                                                               message.from_user.id, time_at_now,
+                                                                               message.text)
     bot.send_message('@unilecs_test', form)
     bot.send_message(message.from_user.id, 'Спасибо за ваше решение. Выберите следующее действие.',
                      reply_markup=Main_mark_up)
@@ -146,7 +152,8 @@ def search_result(message):
             bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
         else:
             try:
-                bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up, parse_mode="Markdown")
+                bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up,
+                                 parse_mode="Markdown")
                 bot.send_message(message.from_user.id, 'Выберите следующее действие.', reply_markup=Main_mark_up)
             except Exception:
                 bot.send_message(message.from_user.id,
@@ -164,6 +171,7 @@ def handle_message(message):
 def getMessage():
     bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
     return "!", 200
+
 
 @server.route("/")
 def webhook():
