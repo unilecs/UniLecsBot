@@ -1,4 +1,5 @@
 ﻿# Constants
+from task import *
 
 token = 'BOT_TOKEN'  # Bot's token
 
@@ -315,3 +316,100 @@ dict_of_names = {
     139: 'Произведение чисел в массива между минимальным и максимальным элементом',
     140: 'Лошадью ходи!'
 }
+
+task_list = [
+    Task(1, 
+        dict_of_names[1], 
+        dict_of_tasks[1],
+        'solutionLink',
+        Complexity.Easy,
+        ['string', 'char', 'chars']),
+
+    Task(2, 
+        dict_of_names[2], 
+        dict_of_tasks[2]),
+
+    Task(3, 
+        dict_of_names[3], 
+        dict_of_tasks[3]),
+
+    Task(4, 
+        dict_of_names[4], 
+        dict_of_tasks[4]),
+
+    Task(5, 
+        dict_of_names[5], 
+        dict_of_tasks[5]),
+
+    Task(6, 
+        dict_of_names[6], 
+        dict_of_tasks[6]),
+
+    Task(7, 
+        dict_of_names[7], 
+        dict_of_tasks[7]),
+
+    Task(8, 
+        dict_of_names[8], 
+        dict_of_tasks[8]),
+
+    Task(9, 
+        dict_of_names[9], 
+        dict_of_tasks[9]),
+
+    Task(10, 
+        dict_of_names[10], 
+        dict_of_tasks[10]),
+
+    Task(11, 
+        dict_of_names[11], 
+        dict_of_tasks[11]),
+
+    Task(12, 
+        dict_of_names[12], 
+        dict_of_tasks[12]),
+
+    Task(13, 
+        dict_of_names[13], 
+        dict_of_tasks[13]),
+
+    Task(14, 
+        dict_of_names[14], 
+        dict_of_tasks[14]),
+
+    Task(15, 
+        dict_of_names[15], 
+        dict_of_tasks[15]),
+
+    Task(16, 
+        dict_of_names[16], 
+        dict_of_tasks[16]),
+
+    Task(17, 
+        dict_of_names[17], 
+        dict_of_tasks[17]),
+
+    Task(18, 
+        dict_of_names[18], 
+        dict_of_tasks[18]),
+
+    Task(19, 
+        dict_of_names[19], 
+        dict_of_tasks[19]),
+
+    Task(20, 
+        dict_of_names[20], 
+        dict_of_tasks[20]),
+
+    Task(21, 
+        dict_of_names[21], 
+        dict_of_tasks[21]),
+
+    Task(22, 
+        dict_of_names[22], 
+        dict_of_tasks[22]),
+
+    Task(23, 
+        dict_of_names[23], 
+        dict_of_tasks[23])
+]

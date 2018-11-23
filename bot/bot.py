@@ -1,6 +1,7 @@
 ﻿import os
 import time
 import telebot
+from random import randint
 from flask import Flask, request
 
 from constants import *
@@ -14,11 +15,15 @@ Main_mark_up.row('Отправить решение', 'Отправить отз
 
 categories_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 categories_mark_up.row('Легкие', 'Средние', 'Сложные')
+categoryes_mark_up.row('Случайная')
 categories_mark_up.row('Отмена')
 
 cancel_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 cancel_mark_up.row('Отмена')
 
+def get_random_task(tasks):
+    rand = randint(1, len(tasks))
+    return tasks[rand - 1]
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -52,7 +57,13 @@ def get_task(message):
 
 def categories(message):
     try:
-        text = categories_dict[message.text]
+        text = ''
+        if 'Случайная' in message.text:
+            random_task = get_random_task(task_list)
+            text = '*🎲 Задача на удачу:*\n{0}'.format(random_task.announcementLink)
+        else:
+            text = categories_dict[message.text]
+
         bot.send_message(message.from_user.id, text, reply_markup=Main_mark_up, parse_mode="Markdown")
     except KeyError:
         text = 'Такой категории нет. Попробуйте еще раз.'
