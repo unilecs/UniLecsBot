@@ -15,7 +15,7 @@ Main_mark_up.row('Отправить решение', 'Отправить отз
 
 categories_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 categories_mark_up.row('Легкие', 'Средние', 'Сложные')
-categoryes_mark_up.row('Случайная')
+categories_mark_up.row('Случайная')
 categories_mark_up.row('Отмена')
 
 cancel_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
@@ -57,14 +57,14 @@ def get_task(message):
 
 def categories(message):
     try:
-        text = ''
         if 'Случайная' in message.text:
             random_task = get_random_task(task_list)
             text = '*🎲 Задача на удачу:*\n{0}'.format(random_task.announcementLink)
+            bot.send_message(message.from_user.id, text, reply_markup=categories_mark_up, parse_mode="Markdown")
+            bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
         else:
             text = categories_dict[message.text]
-
-        bot.send_message(message.from_user.id, text, reply_markup=Main_mark_up, parse_mode="Markdown")
+            bot.send_message(message.from_user.id, text, reply_markup=Main_mark_up, parse_mode="Markdown")
     except KeyError:
         text = 'Такой категории нет. Попробуйте еще раз.'
         bot.send_message(message.from_user.id, text, reply_markup=categories_mark_up)
