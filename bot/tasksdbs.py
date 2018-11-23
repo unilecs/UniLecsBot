@@ -23,11 +23,11 @@ class TasksDatabase(object):
             self.base_cursor = self.base_connection.cursor()
 
 
-    def find_tasks(self, **kwargs) -> dict:
+    def find_tasks(self, **kwargs) -> list:
         """
-        :param index:
-        :param name:
-        :return:
+        find all tasks with current index or name substring.
+        :param kwargs: index, name
+        :return: list of find task
         """
 
         if len(kwargs) == 0:
@@ -49,6 +49,7 @@ class TasksDatabase(object):
 
     def add_task(self, task: Task):
         """
+        Add a new task in database
         :param task: new task object
         :return: None
         """
