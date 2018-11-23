@@ -1,34 +1,29 @@
 import sqlite3
 
 
+class Task(object):
+
+    def __init__(self, name: str, url: str):
+        self.name = name
+        self.url = url
+
+    def show(self):
+        return f"*Task {self.name}*\n {self.url}"
+
+
 class TasksDatabase(object):
 
     def __init__(self, path: str):
 
         try:
-            self.base_connection = self.get_connection(path)
+            self.base_connection = sqlite3.connect(path)
         except sqlite3.DatabaseError:
             print("ERROR! Wrong path")
         finally:
-            self.base_cursor = self.get_cursor(self.base_connection)
+            self.base_cursor = self.base_connection.cursor()
 
-    @staticmethod
-    def get_connection(path: str) -> sqlite3.Connection:
-        """
-        :param path:
-        :return:
-        """
-        return sqlite3.connect(path)
 
-    @staticmethod
-    def get_cursor(connection) -> sqlite3.Cursor:
-        """
-        :param connection:
-        :return:
-        """
-        return connection.cursor()
-
-    def find_task(self, **kwargs) -> dict:
+    def find_tasks(self, **kwargs) -> dict:
         """
         :param index:
         :param name:
@@ -47,12 +42,28 @@ class TasksDatabase(object):
 
         tasks = []
         if len(sql_response) > 0:
-            for (task_name, task_url) in sql_response:
-                tasks.append(
-                    {
-                        "task_name": task_name,
-                        "task_url": task_url
-                    }
-                )
+            for (name, url) in sql_response:
+                tasks.append(Task(name, url))
 
         return tasks
+
+    def add_task(self, task: Task):
+        """
+        :param task: new task object
+        :return: None
+        """
+
+        max_index = self.base_cursor.execute("SELECT MAX(ind) FROM tasks").fetchone()[0]
+        sql_request = f"INSERT INTO tasks VALUES ({max_index+1}, '{task.name}', '{task.url}')"
+
+        self.base_cursor.execute(sql_request)
+        self.base_connection.commit()
+
+
+    def close(self):
+        """
+        Close database connection
+        :return: None
+        """
+
+        self.base_connection.close()
