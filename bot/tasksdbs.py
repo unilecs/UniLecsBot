@@ -19,9 +19,8 @@ class TasksDatabase(object):
             self.base_connection = sqlite3.connect(path)
         except sqlite3.DatabaseError:
             print("ERROR! Wrong path")
-        finally:
+        else:
             self.base_cursor = self.base_connection.cursor()
-
 
     def find_tasks(self, **kwargs) -> list:
         """
@@ -34,11 +33,17 @@ class TasksDatabase(object):
             raise AttributeError
 
         if "index" in kwargs:
-            sql_request = f"SELECT name, url FROM tasks WHERE ind = {kwargs['index']}"
+            sql_request = "SELECT name, url FROM tasks WHERE ind=?"
+            sql_response = tuple(self.base_cursor.execute(
+                sql_request,
+                (kwargs["index"],)
+            ))
         else:
-            sql_request = f"SELECT name, url FROM tasks WHERE name LIKE '%{kwargs['name']}%'"
-
-        sql_response = tuple(self.base_cursor.execute(sql_request))
+            sql_request = "SELECT name, url FROM tasks WHERE name LIKE ?"
+            sql_response = tuple(self.base_cursor.execute(
+                sql_request,
+                ('%'+kwargs["name"]+'%',)
+            ))
 
         tasks = []
         if len(sql_response) > 0:
@@ -55,11 +60,13 @@ class TasksDatabase(object):
         """
 
         max_index = self.base_cursor.execute("SELECT MAX(ind) FROM tasks").fetchone()[0]
-        sql_request = f"INSERT INTO tasks VALUES ({max_index+1}, '{task.name}', '{task.url}')"
+        sql_request = f"INSERT INTO tasks VALUES (?, ?, ?)"
 
-        self.base_cursor.execute(sql_request)
+        self.base_cursor.execute(
+            sql_request,
+            (max_index+1, task.name, task.url,)
+        )
         self.base_connection.commit()
-
 
     def close(self):
         """
