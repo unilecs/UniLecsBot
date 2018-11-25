@@ -27,7 +27,11 @@ books_message = '''*📚 Подборка книг*\n
 *Основы. Часть 1.*
 http://telegra.ph/UniLecsBooks-OsnovyCHast1-07-06 \n
 *Основы. Часть 2.*
-https://telegra.ph/UniLecs-Books-Osnovy-CHast-2-08-24'''
+https://telegra.ph/UniLecs-Books-Osnovy-CHast-2-08-24 \n
+*Подборка книг по C# / .Net*
+https://telegra.ph/UniLecs-Books-C--Net-10-28 \n
+*Алгоритмы. Часть 1.*
+https://telegra.ph/UniLecs-Books-Algoritmy---CHast-1-11-19'''
 
 about_command_message = '''Я - бот канала @UniLecs. Предоставляю автоматизированный способ получения задач и не только. Есть вопрос? Вам сюда -> @albert_davletov'''
 
