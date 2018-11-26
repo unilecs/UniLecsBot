@@ -13,33 +13,52 @@ class TasksDatabase(object):
         else:
             self.base_cursor = self.base_connection.cursor()
 
-    def find_tasks(self, **kwargs) -> list:
+    @staticmethod
+    def get_sql_response(cursor: sqlite3.Cursor,
+                         sql_request: str,
+                         arguments: tuple = ()) -> list:
         """
-        find all tasks with current index or name substring.
-        :param kwargs: index, name
-        :return: list of find task
+        :param cursor: current database sqlite3 cursor
+        :param sql_request: string sql command
+        :param arguments: arguments that are passed to the request
+        :return: list with responses
         """
 
-        if len(kwargs) == 0:
-            raise AttributeError
-
-        if "index" in kwargs:
-            sql_request = "SELECT name, url FROM tasks WHERE ind=?"
-            sql_response = tuple(self.base_cursor.execute(
-                sql_request,
-                (kwargs["index"],)
-            ))
+        if len(arguments) > 0:
+            sql_response = cursor.execute(sql_request, arguments)
         else:
-            sql_request = "SELECT name, url FROM tasks WHERE name LIKE ?"
-            sql_response = tuple(self.base_cursor.execute(
-                sql_request,
-                ('%'+kwargs["name"]+'%',)
-            ))
+            sql_response = cursor.execute(sql_request)
 
+        return sql_response.fetchall()
+
+    def find_tasks_by(self, **parameter) -> list:
+        """
+        find all tasks with current number or name or tag
+        Example: find_tasks_by(name="Найти") return list with
+        all "task" objects with current substring "Найти" in the name field
+        :param parameter: number: int, name: str, tag: str
+        :return: list of tasks
+        """
+
+        sql_requests = {
+            "tag": "SELECT * FROM tasks WHERE tags LIKE ?",
+            "number": "SELECT * FROM tasks WHERE number=?",
+            "name": "SELECT * FROM tasks WHERE name LIKE ?"
+        }
+
+        parameter_name, parameter_value = tuple(parameter.items())[0]
+
+        if parameter_name is not "number":
+            parameter_value = '%' + parameter_value + '%'
+
+        sql_response = self.get_sql_response(self.base_cursor,
+                                             sql_requests[parameter_name],
+                                             (parameter_value,)
+                                             )
         tasks = []
         if len(sql_response) > 0:
-            for (name, url) in sql_response:
-                tasks.append(Task(name, url))
+            for args in sql_response:
+                tasks.append(Task(*args))
 
         return tasks
 
