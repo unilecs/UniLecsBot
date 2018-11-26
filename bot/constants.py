@@ -739,8 +739,6 @@ task_list = [
         'Лошадью ходи!',
         'https://telegra.ph/Anons-140-Loshadyu-hodi-11-12',
         'https://telegra.ph/UniLecs-140-Loshadyu-hodi-11-12',
-        'solutionLink',
          Complexity.Middle,
-         ['string', 'char', 'chars']
-        )
+         ['string', 'char', 'chars'])
 ]
