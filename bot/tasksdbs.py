@@ -7,9 +7,9 @@ class TasksDatabase(object):
     def __init__(self, path: str):
 
         try:
-            self.base_connection = sqlite3.connect(path)
-        except sqlite3.DatabaseError:
-            print("ERROR! Wrong path")
+            self.base_connection = sqlite3.connect(f"file:{path}?mode=rw", uri=True)
+        except sqlite3.OperationalError:
+            raise OSError(f"wrong path: {path}")
         else:
             self.base_cursor = self.base_connection.cursor()
 
@@ -47,6 +47,9 @@ class TasksDatabase(object):
         }
 
         parameter_name, parameter_value = tuple(parameter.items())[0]
+
+        if parameter_name not in sql_requests.keys():
+            raise AttributeError
 
         if parameter_name is not "number":
             parameter_value = '%' + parameter_value + '%'
