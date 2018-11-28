@@ -1,5 +1,5 @@
 import sqlite3
-from task import Task
+from task import Task, Complexity
 
 
 class TasksDatabase(object):
@@ -36,7 +36,7 @@ class TasksDatabase(object):
         """
         Create list of Task object
         :param sql_response: list of tuple value from database
-        :return: list of task
+        :return: list of tasks
         """
 
         if len(sql_response) > 0:
@@ -54,7 +54,7 @@ class TasksDatabase(object):
         sql_request = "SELECT * FROM tasks WHERE name LIKE ?"
         sql_response = self.get_sql_response(self.base_cursor,
                                              sql_request,
-                                             ('%' + name + '%',)
+                                             ('%'+name+'%',)
                                              )
 
         return self.get_tasks(sql_response)
@@ -98,6 +98,24 @@ class TasksDatabase(object):
                                              sql_request,
                                              sql_params,
                                              )
+        return self.get_tasks(sql_response)
+
+    def find_tasks_by_level(self, level: Complexity) -> list:
+        """
+        Find all tasks with current level
+        :param level:
+        :return: list of tasks
+        """
+
+        if type(level) is not Complexity:
+            raise AttributeError(f"type must be enum \"Complexity\"")
+
+        sql_request = "SELECT * FROM tasks WHERE level=?"
+        sql_response = self.get_sql_response(self.base_cursor,
+                                             sql_request,
+                                             (level.value,)
+                                             )
+
         return self.get_tasks(sql_response)
 
     def add_task(self, task: Task):
