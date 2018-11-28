@@ -25,3 +25,6 @@ class Task(object):
 
     def get_level(self):
         return complexityDict[self.level]
+
+    def get_values(self):
+        return list(self.__dict__.values())

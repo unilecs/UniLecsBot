@@ -59,7 +59,7 @@ class TasksDatabase(object):
 
         return self.get_tasks(sql_response)
 
-    def find_task_by_number(self, number: int) -> list:
+    def find_task_by_number(self, number: int) -> Task:
         """
         Find all tasks with current number
         :param number: task index. Starts with 1
@@ -72,7 +72,7 @@ class TasksDatabase(object):
                                              (int(number),)
                                              )
 
-        return self.get_tasks(sql_response)
+        return self.get_tasks(sql_response)[0]
 
     def find_tasks_by_tags(self, tags: list, mode: str = "or") -> list:
         """
@@ -87,11 +87,11 @@ class TasksDatabase(object):
         if mode.lower() not in ["or", "and"]:
             raise AttributeError(f"mode must be \"or\" or \"and\"")
 
-        logic_separator = ' ' + mode.upper() + ' '
-        params_sql_requests = logic_separator.join(['?' for tag in tags])
+        logic_separator = ' ' + mode.upper() + " tags LIKE "
+        params_sql_request = logic_separator.join(['?' for tag in tags])
         base_sql_request = "SELECT * FROM tasks WHERE tags LIKE "
 
-        sql_request = base_sql_request + params_sql_requests
+        sql_request = base_sql_request + params_sql_request
         sql_params = tuple(['%'+param+'%' for param in tags])
 
         sql_response = self.get_sql_response(self.base_cursor,
@@ -118,26 +118,59 @@ class TasksDatabase(object):
 
         return self.get_tasks(sql_response)
 
-    def add_task(self, task: Task):
+    def add_task(self, task: Task) -> None:
         """
         Add a new task in database
         :param task: new task object
         :return: None
         """
 
-        max_index = self.base_cursor.execute("SELECT MAX(ind) FROM tasks").fetchone()[0]
-        sql_request = f"INSERT INTO tasks VALUES (?, ?, ?)"
+        max_index = self.base_cursor.execute("SELECT MAX(number) FROM tasks").fetchone()[0]
+        if max_index > task.number:
+            raise ValueError(f"task №{task.number} exist in the database")
 
-        self.base_cursor.execute(
-            sql_request,
-            (max_index + 1, task.name, task.url,)
-        )
-        self.base_connection.commit()
+        task_values = task.get_values()
+        task_values[5] = '|'.join(task_values[5])
 
-    def close(self):
+        sql_request = "INSERT INTO tasks VALUES (?, ?, ?, ?, ?, ?)"
+        params_sql_request = tuple(task_values)
+
+        self.base_cursor.execute(sql_request,
+                                 params_sql_request
+                                 )
+
+    def edit_task(self, number: int, new_values: dict) -> None:
         """
-        Close database connection
+        Change task values in the database
+        :param number: task number
+        :param new_values: the dictionary where Key is column`s name in the database
         :return: None
         """
+
+        name_of_class_attributes = ["number", "name", "announcement_link",
+                                    "solution_link", "level", "tags"]
+        column_names = list(new_values.keys())
+
+        for column_name in column_names:
+            if column_name not in name_of_class_attributes:
+                raise ValueError(f"task has no attribute {column_name}")
+            elif type(column_name) is not str:
+                raise ValueError(f"column_name {column_name} must be string")
+
+        column_names = [name+"=?" for name in column_names]
+        sql_request = "UPDATE tasks SET " + ', '.join(column_names) + " WHERE number=?"
+        sql_params = tuple(new_values.values()) + (int(number),)
+
+        self.base_cursor.execute(sql_request, sql_params)
+
+    def close(self, save: bool = True):
+        """
+        Closing the database connection with/without saving changes
+        :param save: True - save changes, False - undo changes
+        :return: None
+        """
+
+        if save:
+            self.base_connection.commit()
 
         self.base_connection.close()
