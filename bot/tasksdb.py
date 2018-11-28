@@ -71,8 +71,12 @@ class TasksDatabase(object):
                                              sql_request,
                                              (int(number),)
                                              )
-
-        return self.get_tasks(sql_response)[0]
+        try:
+            task = self.get_tasks(sql_response)[0]
+        except IndexError:
+            raise ValueError("task number out of range")
+        else:
+            return task
 
     def find_tasks_by_tags(self, tags: list, mode: str = "or") -> list:
         """
