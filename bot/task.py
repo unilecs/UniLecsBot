@@ -23,6 +23,9 @@ class Task(object):
         self.level = level
         self.tags = tags
 
+    attributes_name = ["number", "name", "announcement_link",
+                       "solution_link", "level", "tags"]
+
     def get_level(self):
         return complexityDict[self.level]
 
