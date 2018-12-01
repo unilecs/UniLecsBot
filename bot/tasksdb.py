@@ -54,7 +54,7 @@ class TasksDatabase(object):
         sql_request = "SELECT * FROM tasks WHERE name LIKE ?"
         sql_response = self.get_sql_response(self.base_cursor,
                                              sql_request,
-                                             ('%'+name.lower()+'%',)
+                                             ('%' + name.lower() + '%',)
                                              )
 
         return self.get_tasks(sql_response)
@@ -96,7 +96,7 @@ class TasksDatabase(object):
         base_sql_request = "SELECT * FROM tasks WHERE tags LIKE "
 
         sql_request = base_sql_request + params_sql_request
-        sql_params = tuple(['%'+param+'%' for param in tags])
+        sql_params = tuple(['%' + param + '%' for param in tags])
 
         sql_response = self.get_sql_response(self.base_cursor,
                                              sql_request,
@@ -169,7 +169,7 @@ class TasksDatabase(object):
         if "tags" in column_names:
             new_values["tags"] = "|".join(new_values["tags"])
 
-        column_names = [name+"=?" for name in column_names]
+        column_names = [name + "=?" for name in column_names]
         sql_request = "UPDATE tasks SET " + ', '.join(column_names) + " WHERE number=?"
         sql_params = tuple(new_values.values()) + (int(number),)
 

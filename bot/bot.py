@@ -23,7 +23,7 @@ cancel_mark_up.row('Отмена')
 
 def get_task_by_number(tasks, number):
     try:
-        return next((x for x in tasks if x.number == number), None) 
+        return next((x for x in tasks if x.number == number), None)
     except:
         return None
 
@@ -31,9 +31,9 @@ def get_task_by_number(tasks, number):
 def get_random_task(tasks):
     rand = randint(1, len(tasks))
     if 1 <= rand <= len(tasks):
-      return get_task_by_number(tasks, rand)
+        return get_task_by_number(tasks, rand)
     else:
-      return None
+        return None
 
 
 @bot.message_handler(commands=['start'])
@@ -103,7 +103,7 @@ def feedback(message):
     time_at_now = time.strftime("%H:%M:%S %Y.%m.%d", time.localtime())
     form = '''Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}'''.format(message.from_user.first_name,
                                                                                message.from_user.username,
-                                                                               message.from_user.id, 
+                                                                               message.from_user.id,
                                                                                time_at_now,
                                                                                message.text)
     bot.send_message('@unilecs_test', form)
@@ -127,7 +127,7 @@ def solution(message):
     time_at_now = time.strftime("%H:%M:%S %Y.%m.%d", time.localtime())
     form = '''Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}'''.format(message.from_user.first_name,
                                                                                message.from_user.username,
-                                                                               message.from_user.id, 
+                                                                               message.from_user.id,
                                                                                time_at_now,
                                                                                message.text)
     bot.send_message('@unilecs_test', form)
@@ -164,10 +164,10 @@ def search_result(message):
             bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
         else:
             try:
-                bot.send_message(message.from_user.id, 
-                                text_of_message, 
-                                reply_markup=Main_mark_up,
-                                parse_mode="Markdown")
+                bot.send_message(message.from_user.id,
+                                 text_of_message,
+                                 reply_markup=Main_mark_up,
+                                 parse_mode="Markdown")
                 bot.send_message(message.from_user.id, 'Выберите следующее действие.', reply_markup=Main_mark_up)
             except Exception:
                 bot.send_message(message.from_user.id,
