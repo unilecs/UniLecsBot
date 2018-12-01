@@ -44,7 +44,7 @@ class TasksDatabase(object):
         else:
             return []
 
-    def find_tasks_by_name(self, name: str) -> list:
+    def find_by_name(self, name: str) -> list:
         """
         Find all tasks with current name substring
         :param name: name substring
@@ -54,12 +54,12 @@ class TasksDatabase(object):
         sql_request = "SELECT * FROM tasks WHERE name LIKE ?"
         sql_response = self.get_sql_response(self.base_cursor,
                                              sql_request,
-                                             ('%'+name+'%',)
+                                             ('%'+name.lower()+'%',)
                                              )
 
         return self.get_tasks(sql_response)
 
-    def find_task_by_number(self, number: int) -> Task:
+    def find_by_number(self, number: int) -> Task:
         """
         Find all tasks with current number
         :param number: task index. Starts with 1
@@ -78,7 +78,7 @@ class TasksDatabase(object):
         else:
             return task
 
-    def find_tasks_by_tags(self, tags: list, mode: str = "or") -> list:
+    def find_by_tags(self, tags: list, mode: str = "or") -> list:
         """
         Find all tasks with current tags.
         Mode "or" mean that at least one tag is in the task.
@@ -104,7 +104,7 @@ class TasksDatabase(object):
                                              )
         return self.get_tasks(sql_response)
 
-    def find_tasks_by_level(self, level: Complexity) -> list:
+    def find_by_level(self, level: Complexity) -> list:
         """
         Find all tasks with current level
         :param level:
@@ -122,7 +122,7 @@ class TasksDatabase(object):
 
         return self.get_tasks(sql_response)
 
-    def add_task(self, task: Task) -> None:
+    def add(self, task: Task) -> None:
         """
         Add a new task in database
         :param task: new task object
@@ -143,7 +143,7 @@ class TasksDatabase(object):
                                  params_sql_request
                                  )
 
-    def edit_task(self, number: int, new_values: dict) -> None:
+    def edit(self, number: int, new_values: dict) -> None:
         """
         Change task values in the database
         :param number: task number
@@ -151,12 +151,10 @@ class TasksDatabase(object):
         :return: None
         """
 
-        name_of_class_attributes = ["number", "name", "announcement_link",
-                                    "solution_link", "level", "tags"]
         column_names = list(new_values.keys())
 
         for column_name in column_names:
-            if column_name not in name_of_class_attributes:
+            if column_name not in Task.attributes_name:
                 raise ValueError(f"task has no attribute {column_name}")
             elif type(column_name) is not str:
                 raise ValueError(f"column_name {column_name} must be string")
