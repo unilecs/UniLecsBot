@@ -133,8 +133,15 @@ class TasksDatabase(object):
         if max_index > task.number:
             raise ValueError(f"task №{task.number} exist in the database")
 
+        name_exist = task.name in self.base_cursor.execute("SELECT name FROM tasks WHERE name=?",
+                                                           (task.name,)
+                                                           )
+        if not name_exist:
+            raise ValueError(f"task with name \"{task.name}\" exist in the database")
+
         task_values = task.get_values()
-        task_values[5] = '|'.join(task_values[5])
+        if task_values[5] is not None:
+            task_values[5] = '|'.join(task_values[5])
 
         sql_request = "INSERT INTO tasks VALUES (?, ?, ?, ?, ?, ?)"
         params_sql_request = tuple(task_values)
@@ -158,6 +165,9 @@ class TasksDatabase(object):
                 raise ValueError(f"task has no attribute {column_name}")
             elif type(column_name) is not str:
                 raise ValueError(f"column_name {column_name} must be string")
+
+        if "tags" in column_names:
+            new_values["tags"] = "|".join(new_values["tags"])
 
         column_names = [name+"=?" for name in column_names]
         sql_request = "UPDATE tasks SET " + ', '.join(column_names) + " WHERE number=?"
