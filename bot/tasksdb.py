@@ -13,6 +13,8 @@ class TasksDatabase(object):
         else:
             self.base_cursor = self.base_connection.cursor()
 
+        self.columns_for_sql = ",".join(Task.attributes_name)
+
     @staticmethod
     def get_sql_response(cursor: sqlite3.Cursor,
                          sql_request: str,
@@ -51,7 +53,7 @@ class TasksDatabase(object):
         :return: list of tasks
         """
 
-        sql_request = "SELECT * FROM tasks WHERE name LIKE ?"
+        sql_request = f"SELECT {self.columns_for_sql} FROM  tasks WHERE name_for_search LIKE ?"
         sql_response = self.get_sql_response(self.base_cursor,
                                              sql_request,
                                              ('%'+name.lower()+'%',)
@@ -66,7 +68,7 @@ class TasksDatabase(object):
         :return: list of tasks
         """
 
-        sql_request = "SELECT * FROM tasks WHERE number=?"
+        sql_request = f"SELECT {self.columns_for_sql} FROM tasks WHERE number=?"
         sql_response = self.get_sql_response(self.base_cursor,
                                              sql_request,
                                              (int(number),)
@@ -93,7 +95,7 @@ class TasksDatabase(object):
 
         logic_separator = ' ' + mode.upper() + " tags LIKE "
         params_sql_request = logic_separator.join(['?' for tag in tags])
-        base_sql_request = "SELECT * FROM tasks WHERE tags LIKE "
+        base_sql_request = f"SELECT {self.columns_for_sql} FROM tasks WHERE tags LIKE "
 
         sql_request = base_sql_request + params_sql_request
         sql_params = tuple(['%'+param.lower()+'%' for param in tags])
@@ -114,7 +116,7 @@ class TasksDatabase(object):
         if type(level) is not Complexity:
             raise AttributeError(f"type must be enum \"Complexity\"")
 
-        sql_request = "SELECT * FROM tasks WHERE level=?"
+        sql_request = f"SELECT {self.columns_for_sql} FROM tasks WHERE level=?"
         sql_response = self.get_sql_response(self.base_cursor,
                                              sql_request,
                                              (level.value,)
@@ -130,6 +132,8 @@ class TasksDatabase(object):
         """
 
         max_index = self.base_cursor.execute("SELECT MAX(number) FROM tasks").fetchone()[0]
+        max_index = 0 if max_index is None else max_index
+
         if max_index > task.number:
             raise ValueError(f"task №{task.number} exist in the database")
 
@@ -143,11 +147,15 @@ class TasksDatabase(object):
             raise ValueError(f"task with name \"{task.name}\" exists in the database")
 
         task_values = task.get_values()
-        if task_values[5] is not None:
-            task_values[5] = '|'.join([tag.lower() for tag in task_values[5]])
+        if task_values[6] is not None:
+            task_values[6] = '|'.join([tag.lower() for tag in task_values[6]])
 
-        sql_request = "INSERT INTO tasks VALUES (?, ?, ?, ?, ?, ?)"
+        if task_values[5] is not None:
+            task_values[5] = task_values[5].value
+
+        sql_request = "INSERT INTO tasks VALUES (?, ?, ?, ?, ?, ?, ?)"
         params_sql_request = tuple(task_values)
+        print(params_sql_request)
 
         self.base_cursor.execute(sql_request,
                                  params_sql_request
