@@ -74,7 +74,7 @@ class TasksDatabase(object):
         try:
             task = self.get_tasks(sql_response)[0]
         except IndexError:
-            raise ValueError("task number out of range")
+            raise ValueError(f"Database contains no task with number {task.number}")
         else:
             return task
 
@@ -96,7 +96,7 @@ class TasksDatabase(object):
         base_sql_request = "SELECT * FROM tasks WHERE tags LIKE "
 
         sql_request = base_sql_request + params_sql_request
-        sql_params = tuple(['%'+param+'%' for param in tags])
+        sql_params = tuple(['%'+param.lower()+'%' for param in tags])
 
         sql_response = self.get_sql_response(self.base_cursor,
                                              sql_request,
@@ -133,15 +133,18 @@ class TasksDatabase(object):
         if max_index > task.number:
             raise ValueError(f"task №{task.number} exist in the database")
 
-        name_exist = task.name in self.base_cursor.execute("SELECT name FROM tasks WHERE name=?",
-                                                           (task.name,)
-                                                           )
-        if not name_exist:
-            raise ValueError(f"task with name \"{task.name}\" exist in the database")
+        name_exist = any(
+            self.base_cursor.execute("SELECT name FROM tasks WHERE name=?",
+                                     (task.name,)
+                                     )
+        )
+
+        if name_exist:
+            raise ValueError(f"task with name \"{task.name}\" exists in the database")
 
         task_values = task.get_values()
         if task_values[5] is not None:
-            task_values[5] = '|'.join(task_values[5])
+            task_values[5] = '|'.join([tag.lower() for tag in task_values[5]])
 
         sql_request = "INSERT INTO tasks VALUES (?, ?, ?, ?, ?, ?)"
         params_sql_request = tuple(task_values)
