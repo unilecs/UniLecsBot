@@ -18,6 +18,7 @@ class Task(object):
     def __init__(self, number, name, announcement_link, solution_link=None, level=None, tags=None):
         self.number = number
         self.name = name
+        self.name_for_search = name.lower()
         self.announcement_link = announcement_link
         self.solution_link = solution_link
         self.level = level
