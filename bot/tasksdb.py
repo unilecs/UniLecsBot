@@ -13,6 +13,10 @@ class TasksDatabase(object):
         else:
             self.base_cursor = self.base_connection.cursor()
 
+        self.last_task_number = self.get_sql_response(self.base_cursor,
+                                                    "SELECT MAX(number) FROM tasks"
+                                                      )[0][0]
+
         self.columns_for_sql = ",".join(Task.attributes_name)
 
     @staticmethod
@@ -131,10 +135,7 @@ class TasksDatabase(object):
         :return: None
         """
 
-        max_index = self.base_cursor.execute("SELECT MAX(number) FROM tasks").fetchone()[0]
-        max_index = 0 if max_index is None else max_index
-
-        if max_index > task.number:
+        if self.last_task_number > task.number:
             raise ValueError(f"task №{task.number} exist in the database")
 
         name_exist = any(
