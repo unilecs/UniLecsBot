@@ -271,7 +271,7 @@ task_list = [
         'http://telegra.ph/Task-46-Razvorot-chisla-11-20'),
 
     Task(47,
-        'Разворот числа',
+        'Разница в количестве битов',
         'https://t.me/unilecs/135',
         'http://telegra.ph/Task-47-Raznica-v-kolichestve-bitov-11-29'),
 
