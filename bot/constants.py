@@ -1,2 +1,4 @@
-﻿TOKEN = "1192799493:AAHgw2987L8bKrXklcgP3OKScvTRLGBVhpQ"
-BASE_URL = "https://my-json-server.typicode.com/Muhammadrasul446/test"
+﻿TOKEN = "BOT-TOKEN"  # bot token
+
+# create a repository and place a db.json file in the root folder
+BASE_URL = "https://my-json-server.typicode.com/username/repo"
