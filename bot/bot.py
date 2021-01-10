@@ -2,11 +2,12 @@
 import time
 import telebot
 from random import randint
-from flask import Flask, request
+# from flask import Flask, request
+from data import *
 from constants import *
 
-bot = telebot.TeleBot(token)
-server = Flask(__name__)
+bot = telebot.TeleBot(TOKEN)
+# server = Flask(__name__)
 Main_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 Main_mark_up.row('Список задач', 'Поиск')
 Main_mark_up.row('Получить задачу по сложности', 'Книги')
@@ -23,7 +24,7 @@ cancel_mark_up.row('Отмена')
 
 def get_task_by_number(tasks, number):
     try:
-        return next((x for x in tasks if x.number == number), None) 
+        return next((x for x in tasks if x.number == number), None)
     except:
         return None
 
@@ -31,26 +32,26 @@ def get_task_by_number(tasks, number):
 def get_random_task(tasks):
     rand = randint(1, len(tasks))
     if 1 <= rand <= len(tasks):
-      return get_task_by_number(tasks, rand)
+        return get_task_by_number(tasks, rand)
     else:
-      return None
+        return None
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    text_of_message = start_command_message
+    text_of_message = get_start_command_message()
     bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up)
 
 
 @bot.message_handler(commands=['help'])
-def help(message):
-    text_of_message = help_command_message
+def _help(message):
+    text_of_message = get_help_command_message()
     bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up, parse_mode="Markdown")
 
 
 @bot.message_handler(commands=['about'])
 def about(message):
-    text_of_message = about_command_message
+    text_of_message = get_about_command_message()
     bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up)
 
 
@@ -69,12 +70,12 @@ def get_task(message):
 def categories(message):
     try:
         if 'Случайная' in message.text:
-            random_task = get_random_task(task_list)
+            random_task = get_random_task(get_tasks())
             text = '*🎲 Задача на удачу:*\n{0}'.format(random_task.announcement_link)
             bot.send_message(message.from_user.id, text, reply_markup=categories_mark_up, parse_mode="Markdown")
             bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
         else:
-            text = categories_dict[message.text]
+            text = get_categories_dict()[message.text]
             bot.send_message(message.from_user.id, text, reply_markup=Main_mark_up, parse_mode="Markdown")
     except KeyError:
         text = 'Такой категории нет. Попробуйте еще раз.'
@@ -84,7 +85,7 @@ def categories(message):
 
 @bot.message_handler(regexp='Книги')
 def books(message):
-    bot.send_message(message.from_user.id, books_message, reply_markup=Main_mark_up, parse_mode="Markdown")
+    bot.send_message(message.from_user.id, get_books_message(), reply_markup=Main_mark_up, parse_mode="Markdown")
 
 
 @bot.message_handler(regexp='Отправить отзыв')
@@ -103,7 +104,7 @@ def feedback(message):
     time_at_now = time.strftime("%H:%M:%S %Y.%m.%d", time.localtime())
     form = '''Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}'''.format(message.from_user.first_name,
                                                                                message.from_user.username,
-                                                                               message.from_user.id, 
+                                                                               message.from_user.id,
                                                                                time_at_now,
                                                                                message.text)
     bot.send_message('@unilecs_test', form)
@@ -114,7 +115,8 @@ def feedback(message):
 @bot.message_handler(regexp='Отправить решение')
 def answer(message):
     bot.send_message(message.from_user.id,
-                     '💡 В следующем сообщении введите свое решение последней опубликованной задачи. Чтобы отменить отправку решения, введите "Отмена".',
+                     '💡 В следующем сообщении введите свое решение последней опубликованной задачи. Чтобы отменить '
+                     'отправку решения, введите "Отмена".',
                      reply_markup=cancel_mark_up)
     bot.register_next_step_handler_by_chat_id(message.chat.id, solution)
 
@@ -127,7 +129,7 @@ def solution(message):
     time_at_now = time.strftime("%H:%M:%S %Y.%m.%d", time.localtime())
     form = '''Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}'''.format(message.from_user.first_name,
                                                                                message.from_user.username,
-                                                                               message.from_user.id, 
+                                                                               message.from_user.id,
                                                                                time_at_now,
                                                                                message.text)
     bot.send_message('@unilecs_test', form)
@@ -146,7 +148,7 @@ def search_result(message):
         bot.send_message(message.from_user.id, 'Поиск отменен. Выберите следующее действие.', reply_markup=Main_mark_up)
     elif message.text.isnumeric():
         try:
-            task_link = get_task_by_number(task_list, int(message.text)).announcement_link
+            task_link = get_task_by_number(get_tasks(), int(message.text)).announcement_link
             text_of_message = '*Task {0}*\n {1}'.format(message.text, task_link)
             bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up, parse_mode="Markdown")
         except AttributeError:
@@ -155,19 +157,19 @@ def search_result(message):
             bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
     else:
         text_of_message = ''
-        for task in task_list:
-            if task.name.lower().find(message.text.lower()) != -1:
-                text_of_message += '*Task {0}: {1}*\n{2}\n\n'.format(task.number, task.name, task.announcement_link)
+        for _task in get_tasks():
+            if _task.name.lower().find(message.text.lower()) != -1:
+                text_of_message += '*Task {0}: {1}*\n{2}\n\n'.format(_task.number, _task.name, _task.announcement_link)
         if text_of_message == '':
             bot.send_message(message.from_user.id, 'Ни одной задачи не найдено. Попробуйте еще раз.',
                              reply_markup=cancel_mark_up)
             bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
         else:
             try:
-                bot.send_message(message.from_user.id, 
-                                text_of_message, 
-                                reply_markup=Main_mark_up,
-                                parse_mode="Markdown")
+                bot.send_message(message.from_user.id,
+                                 text_of_message,
+                                 reply_markup=Main_mark_up,
+                                 parse_mode="Markdown")
                 bot.send_message(message.from_user.id, 'Выберите следующее действие.', reply_markup=Main_mark_up)
             except Exception:
                 bot.send_message(message.from_user.id,
@@ -181,18 +183,19 @@ def handle_message(message):
     bot.send_message(message.from_user.id, 'Простите, я вас не понимаю. Попробуйте еще раз.', reply_markup=Main_mark_up)
 
 
-@server.route('/' + token, methods=['POST'])
-def getMessage():
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-    return "!", 200
-
-
-@server.route("/")
-def webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url='YOUR_SERVER' + token)
-    return "!", 200
-
-
-if __name__ == "__main__":
-    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+bot.polling(none_stop=True)
+# @server.route('/' + token, methods=['POST'])
+# def getMessage():
+#     bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+#     return "!", 200
+#
+#
+# @server.route("/")
+# def webhook():
+#     bot.remove_webhook()
+#     bot.set_webhook(url='YOUR_SERVER' + token)
+#     return "!", 200
+#
+#
+# if __name__ == "__main__":
+#     server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
