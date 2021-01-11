@@ -39,25 +39,25 @@ def get_random_task(tasks):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    text_of_message = get_start_command_message()
+    text_of_message = WELCOME
     bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up)
 
 
 @bot.message_handler(commands=['help'])
 def _help(message):
-    text_of_message = get_help_command_message()
+    text_of_message = HELP
     bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up, parse_mode="Markdown")
 
 
 @bot.message_handler(commands=['about'])
 def about(message):
-    text_of_message = get_about_command_message()
+    text_of_message = ABOUT
     bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up)
 
 
 @bot.message_handler(regexp='Список задач')
 def task_handler(message):
-    text_of_message = '*📋 Список задач*\n https://telegra.ph/Unique-Lectures-06-13'
+    text_of_message = get_all_tasks_link()
     bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up, parse_mode="Markdown")
 
 
@@ -181,9 +181,6 @@ def search_result(message):
 @bot.message_handler(content_types=['text'])
 def handle_message(message):
     bot.send_message(message.from_user.id, 'Простите, я вас не понимаю. Попробуйте еще раз.', reply_markup=Main_mark_up)
-
-
-bot.polling(none_stop=True)
 
 
 @server.route('/' + TOKEN, methods=['POST'])

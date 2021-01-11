@@ -3,24 +3,14 @@ from constants import *
 import requests
 
 
-def get_start_command_message():
-    start_command_message = requests.get(f"{BASE_URL}/messages").json()["welcome"]
-    return start_command_message
-
-
 def get_books_message():
-    books_message = requests.get(f"{BASE_URL}/messages").json()["books"]
+    books_message = requests.get(f"{BASE_URL}/links").json()["books"]
     return books_message
 
 
-def get_help_command_message():
-    help_command_message = requests.get(f"{BASE_URL}/messages").json()["help"]
-    return help_command_message
-
-
-def get_about_command_message():
-    about_command_message = requests.get(f"{BASE_URL}/messages").json()["about"]
-    return about_command_message
+def get_all_tasks_link():
+    books_message = requests.get(f"{BASE_URL}/links").json()["all_tasks"]
+    return books_message
 
 
 def get_categories_dict():
