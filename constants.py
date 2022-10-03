@@ -1,8 +1,3 @@
-TOKEN = "TOKEN"  # bot token
-
-# create a repository and place a db.json file in the root folder
-BASE_URL = "https://my-json-server.typicode.com/user/repo"
-
 # messages
 WELCOME = "Вас приветсвует бот канала @Unilecs! 🖥 Чем я могу вам помочь?🔖"
 HELP = "У меня есть несколько функций! \nНачнем по порядку :\n- *Список задач:* я отправлю Вам ссылку на пост с " \

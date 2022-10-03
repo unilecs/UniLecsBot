@@ -6,6 +6,10 @@ from flask import Flask, request
 from data import *
 from constants import *
 
+TOKEN = os.environ["BOT_TOKEN"]
+BASE_URL = os.environ["BASE_URL"]
+SERVER_URL = BASE_URL + TOKEN
+
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
 Main_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
@@ -192,7 +196,7 @@ def getMessage():
 @server.route("/")
 def webhook():
     bot.remove_webhook()
-    bot.set_webhook(url='YOUR_SERVER' + TOKEN)
+    bot.set_webhook(url=SERVER_URL)
     return "!", 200
 
 
