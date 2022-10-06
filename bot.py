@@ -75,7 +75,7 @@ def categories(message):
     try:
         if 'Случайная' in message.text:
             random_task = get_random_task(get_tasks())
-            text = '*🎲 Задача на удачу:*\n{0}'.format(random_task.announcement_link)
+            text = '*🎲 Задача на удачу:*\n{0}'.format(random_task.announcementLink)
             bot.send_message(message.from_user.id, text, reply_markup=categories_mark_up, parse_mode="Markdown")
             bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
         else:
@@ -152,7 +152,7 @@ def search_result(message):
         bot.send_message(message.from_user.id, 'Поиск отменен. Выберите следующее действие.', reply_markup=Main_mark_up)
     elif message.text.isnumeric():
         try:
-            task_link = get_task_by_number(get_tasks(), int(message.text)).announcement_link
+            task_link = get_task_by_number(get_tasks(), int(message.text)).announcementLink
             text_of_message = '*Task {0}*\n {1}'.format(message.text, task_link)
             bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up, parse_mode="Markdown")
         except AttributeError:
@@ -163,7 +163,7 @@ def search_result(message):
         text_of_message = ''
         for _task in get_tasks():
             if _task.name.lower().find(message.text.lower()) != -1:
-                text_of_message += '*Task {0}: {1}*\n{2}\n\n'.format(_task.number, _task.name, _task.announcement_link)
+                text_of_message += '*Task {0}: {1}*\n{2}\n\n'.format(_task.number, _task.name, _task.announcementLink)
         if text_of_message == '':
             bot.send_message(message.from_user.id, 'Ни одной задачи не найдено. Попробуйте еще раз.',
                              reply_markup=cancel_mark_up)
@@ -187,6 +187,8 @@ def handle_message(message):
     bot.send_message(message.from_user.id, 'Простите, я вас не понимаю. Попробуйте еще раз.', reply_markup=Main_mark_up)
 
 
+# bot webhook 
+
 @server.route('/' + TOKEN, methods=['POST'])
 def getMessage():
     bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
@@ -199,6 +201,11 @@ def webhook():
     bot.set_webhook(url=SERVER_URL)
     return "!", 200
 
-
 if __name__ == "__main__":
     server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+
+'''
+# test locally with infinity pooling
+if __name__ == "__main__":
+	bot.polling(none_stop=True)
+'''
