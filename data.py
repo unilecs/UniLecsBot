@@ -1,6 +1,7 @@
 from task import *
 from constants import *
 import requests
+from requests.structures import CaseInsensitiveDict
 
 JSON_URL = os.environ["JSON_URL"]
 JSON_ACCESS_KEY = os.environ["JSON_ACCESS_KEY"]
