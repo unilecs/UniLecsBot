@@ -8,14 +8,16 @@ class Complexity(Enum):
 
 
 complexityDict = {
-    Complexity.Easy: 'Легкий',
-    Complexity.Middle: 'Средний',
-    Complexity.Hard: 'Тяжелый'
+    Complexity.Easy: "Легкий",
+    Complexity.Middle: "Средний",
+    Complexity.Hard: "Тяжелый",
 }
 
 
 class Task(object):
-    def __init__(self, number, name, announcement_link, solution_link=None, level=None, tags=None):
+    def __init__(
+        self, number, name, announcement_link, solution_link=None, level=None, tags=None
+    ):
         self.number = number
         self.name = name
         self.announcement_link = announcement_link
