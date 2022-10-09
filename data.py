@@ -47,12 +47,12 @@ class DataService:
         for task in tasks_from_server:
             task_list.append(
                 Task(
-                    task["id"],
-                    task["name"],
-                    task["announcement"],
-                    task["solution"],
-                    task["complexity"],
-                    task["tags"],
+                    task.get("id", None),
+                    task.get("name", None),
+                    task.get("announcement", None),
+                    task.get("solution", None),
+                    task.get("complexity", None),
+                    task.get("tags", None),
                 )
             )
         return task_list
