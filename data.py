@@ -11,7 +11,6 @@ JSON_ACCESS_KEY = os.environ["JSON_ACCESS_KEY"]
 headers = CaseInsensitiveDict()
 headers["X-ACCESS-KEY"] = JSON_ACCESS_KEY
 
-
 class DataService:
     def __init__(self, data=None, version=None):
         self.data = data
