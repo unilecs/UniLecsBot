@@ -5,7 +5,7 @@ from utils import *
 from constants import *
 from flask import Flask, request
 
-# ENV variables
+# env variables
 FEEDBACK_CHANNEL_ID = os.environ["FEEDBACK_CHANNEL_ID"]
 TOKEN = os.environ["BOT_TOKEN"]
 BASE_URL = os.environ["BASE_URL"]
