@@ -2,14 +2,14 @@
 Официальный бот телеграм канала [UniLecs](https://t.me/unilecs)
 
 ## Bot Commands
-![Welcome message](https://github.com/unilecs/UniLecsBot/blob/master/screenshots/welcomeMessage.png)
+![Welcome message](https://github.com/unilecs/UniLecsBot/blob/master/screenshots/unilecs_bot_screenshot.png)
 
 - **Список задач:** ссылка на пост с задачами канала.
 - **Поиск:** поиск задачи по названию или номеру.
 - **Книги:** ссылка на посты с подборками книг.
 - **Получить задачу по сложности:** выбор задачи по уровню сложности.
-- **Отправить решение:** форма отправки решений задач для канала.
-- **Отправить отзыв:** форма для обратной связи.
+- **Головоломки:** раздел головоломок.
+- **Отправить:** форма отправки решений задач / отзывов.
 
 ## Links
 - [Telegram Docs](https://core.telegram.org/api)
