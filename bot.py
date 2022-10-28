@@ -1,263 +1,193 @@
 ﻿import os
-import time
 import telebot
-from random import randint
-from flask import Flask, request
-from data import *
+from config import *
+from info import *
+from task import *
+from puzzle import *
+from utils import *
 from constants import *
+from flask import Flask, request
 
-TOKEN = os.environ["BOT_TOKEN"]
-BASE_URL = os.environ["BASE_URL"]
-SERVER_URL = BASE_URL + TOKEN
-
+# bot config
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
-data_service = DataService()
+info_service = InfoService()
+task_service = TaskService()
+puzzle_service = PuzzleService() 
+
+# Main markup
 Main_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 Main_mark_up.row("Список задач", "Поиск")
 Main_mark_up.row("Получить задачу по сложности", "Книги")
-Main_mark_up.row("Отправить решение", "Отправить отзыв")
+Main_mark_up.row("Головоломки", "Отправить")
 
+# Send group markup
+send_groups_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
+send_groups_mark_up.row("Отзыв", "Решение")
+send_groups_mark_up.row("Отмена")
+
+# Task group markup
 categories_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 categories_mark_up.row("Легкие", "Средние", "Сложные")
 categories_mark_up.row("Случайная")
 categories_mark_up.row("Отмена")
 
+# Puzzle group markup
+puzzles_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
+puzzles_mark_up.row("Случайная")
+puzzles_mark_up.row("Отмена")
+
+# Cancel markup
 cancel_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 cancel_mark_up.row("Отмена")
 
-
-def get_task_by_number(tasks, number):
-    try:
-        return next((x for x in tasks if x.number == number), None)
-    except:
-        return None
-
-
-def get_random_task(tasks):
-    rand = randint(1, len(tasks))
-    if 1 <= rand <= len(tasks):
-        return get_task_by_number(tasks, rand)
-    else:
-        return None
-
-
+# ---------------------------------------
+# bot commands
+# ---------------------------------------
 @bot.message_handler(commands=["start"])
 def start(message):
-    text_of_message = WELCOME
-    bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up)
+    bot_send_message(message, WELCOME)
 
 
 @bot.message_handler(commands=["help"])
-def _help(message):
-    text_of_message = HELP
-    bot.send_message(
-        message.from_user.id,
-        text_of_message,
-        reply_markup=Main_mark_up,
-        parse_mode="Markdown",
-    )
+def help(message):
+    bot_send_message(message, HELP)
 
 
 @bot.message_handler(commands=["about"])
 def about(message):
-    text_of_message = ABOUT
-    bot.send_message(message.from_user.id, text_of_message, reply_markup=Main_mark_up)
+    bot_send_message(message, ABOUT)
 
 
+# ---------------------------------------
+# Main markup
+# ---------------------------------------
 @bot.message_handler(regexp="Список задач")
 def task_handler(message):
-    text_of_message = data_service.get_all_tasks_link()
-    bot.send_message(
-        message.from_user.id,
-        text_of_message,
-        reply_markup=Main_mark_up,
-        parse_mode="Markdown",
-    )
+    bot_send_message(message, info_service.get_all_tasks_link())
+
+
+@bot.message_handler(regexp="Поиск")
+def search(message):
+    bot_send_message(message, ENTER_TASK_NUMBER, cancel_mark_up)
+    bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
 
 
 @bot.message_handler(regexp="Получить задачу по сложности")
 def get_task(message):
-    bot.send_message(
-        message.from_user.id, "Выберите категорию.", reply_markup=categories_mark_up
-    )
+    bot_send_message(message, CHOOSE_CATEGORY, categories_mark_up)
     bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
+
+
+@bot.message_handler(regexp="Книги")
+def books(message):
+    bot_send_message(message, info_service.get_books_message())
+
+
+@bot.message_handler(regexp="Головоломки")
+def get_puzzle(message):
+    bot_send_message(message, CHOOSE_CATEGORY, puzzles_mark_up)
+    bot.register_next_step_handler_by_chat_id(message.chat.id, puzzles)
+
+
+@bot.message_handler(regexp="Отправить")
+def send_handler(message):
+    bot_send_message(message, CHOOSE_WHAT_TO_SEND, send_groups_mark_up)
+    bot.register_next_step_handler_by_chat_id(message.chat.id, send_groups)
+
+
+# ---------------------------------------
+# private functions
+# ---------------------------------------
+def send_groups(message):
+    if "Отзыв" in message.text:
+        bot_send_message(message, SEND_FEEDBACK, cancel_mark_up)
+        bot.register_next_step_handler_by_chat_id(message.chat.id, feedback)            
+    elif "Решение" in message.text:
+        bot_send_message(message, SEND_SOLUTION, cancel_mark_up)
+        bot.register_next_step_handler_by_chat_id(message.chat.id, solution)
+    elif "Отмена" in message.text:
+        bot_send_message(message, CANCEL_SEND_MESSAGE)
+    else:
+        bot_send_message(message, UNKNOWN_COMMAND_RESPONSE)
 
 
 def categories(message):
     try:
         if "Случайная" in message.text:
-            random_task = get_random_task(data_service.get_tasks())
-            text = "*🎲 Задача на удачу:*\n{0}".format(random_task.announcement_link)
-            bot.send_message(
-                message.from_user.id,
-                text,
-                reply_markup=categories_mark_up,
-                parse_mode="Markdown",
-            )
+            random_task = get_random_task(task_service.get_tasks())
+            text = RANDOM_TASK.format(random_task.number, random_task.name, random_task.announcement_link)
+            bot_send_message(message, text, categories_mark_up)
             bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
         else:
-            text = data_service.get_categories_dict()[message.text]
-            bot.send_message(
-                message.from_user.id,
-                text,
-                reply_markup=Main_mark_up,
-                parse_mode="Markdown",
-            )
+            text = info_service.get_categories_dict()[message.text]
+            bot_send_message(message, text)
     except KeyError:
-        text = "Такой категории нет. Попробуйте еще раз."
-        bot.send_message(message.from_user.id, text, reply_markup=categories_mark_up)
+        bot_send_message(message, CATEGORY_NOT_FOUND, categories_mark_up)
         bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
 
 
-@bot.message_handler(regexp="Книги")
-def books(message):
-    bot.send_message(
-        message.from_user.id,
-        data_service.get_books_message(),
-        reply_markup=Main_mark_up,
-        parse_mode="Markdown",
-    )
-
-
-@bot.message_handler(regexp="Отправить отзыв")
-def review_handler(message):
-    bot.send_message(
-        message.from_user.id,
-        'В следующем сообщении введите свой отзыв. Чтобы отменить написание отзыва, введите "Отмена".',
-        reply_markup=cancel_mark_up,
-    )
-    bot.register_next_step_handler_by_chat_id(message.chat.id, feedback)
+def puzzles(message):
+    try:
+        if "Случайная" in message.text:
+            random_puzzle = get_random_task(puzzle_service.get_puzzles())
+            text = RANDOM_PUZZLE.format(random_puzzle.number, random_puzzle.name, random_puzzle.telegram_link)
+            bot_send_message(message, text, puzzles_mark_up)
+            bot.register_next_step_handler_by_chat_id(message.chat.id, puzzles)
+        elif "Отмена" in message.text:
+            bot_send_message(message, CANCEL_PUZZLES)
+        else:
+            bot_send_message(message, UNKNOWN_COMMAND_RESPONSE)
+    except KeyError:
+        bot_send_message(message, CATEGORY_NOT_FOUND, puzzles_mark_up)
+        bot.register_next_step_handler_by_chat_id(message.chat.id, puzzles)
 
 
 def feedback(message):
     if "Отмена" in message.text:
-        bot.send_message(
-            message.from_user.id,
-            "Вы отменили написание отзыва. Выберите дальнейшее действие.",
-            reply_markup=Main_mark_up,
-        )
+        bot_send_message(message, CANCEL_SEND_FEEDBACK)
         return
-    time_at_now = time.strftime("%H:%M:%S %Y.%m.%d", time.localtime())
-    form = """Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}""".format(
-        message.from_user.first_name,
-        message.from_user.username,
-        message.from_user.id,
-        time_at_now,
-        message.text,
-    )
-    bot.send_message("@unilecs_test", form)
-    bot.send_message(
-        message.from_user.id,
-        "Спасибо за ваш отзыв. Выберите следующее действие.",
-        reply_markup=Main_mark_up,
-    )
-
-
-@bot.message_handler(regexp="Отправить решение")
-def answer(message):
-    bot.send_message(
-        message.from_user.id,
-        "💡 В следующем сообщении введите свое решение последней опубликованной задачи. Чтобы отменить "
-        'отправку решения, введите "Отмена".',
-        reply_markup=cancel_mark_up,
-    )
-    bot.register_next_step_handler_by_chat_id(message.chat.id, solution)
+    bot.send_message(FEEDBACK_CHANNEL_ID, get_feedback_form(message))
+    bot_send_message(message, THANKS_FOR_FEEDBACK)
 
 
 def solution(message):
     if "Отмена" in message.text:
-        bot.send_message(
-            message.from_user.id,
-            "Вы отменили отправку решения. Выберите дальнейшее действие.",
-            reply_markup=Main_mark_up,
-        )
+        bot_send_message(message, CANCEL_SEND_SOLUTION)
         return
-    time_at_now = time.strftime("%H:%M:%S %Y.%m.%d", time.localtime())
-    form = """Feedback from {0} - @{1} ({2});\nDate: {3};\nText: {4}""".format(
-        message.from_user.first_name,
-        message.from_user.username,
-        message.from_user.id,
-        time_at_now,
-        message.text,
-    )
-    bot.send_message("@unilecs_test", form)
-    bot.send_message(
-        message.from_user.id,
-        "Спасибо за ваше решение. Выберите следующее действие.",
-        reply_markup=Main_mark_up,
-    )
-
-
-@bot.message_handler(regexp="Поиск")
-def search(message):
-    bot.send_message(
-        message.from_user.id,
-        "Введите название задачи или ее номер.",
-        reply_markup=cancel_mark_up,
-    )
-    bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
+    bot.send_message(FEEDBACK_CHANNEL_ID, get_feedback_form(message))
+    bot_send_message(message, THANKS_FOR_SOLUTION)
 
 
 def search_result(message):
     if "Отмена" in message.text:
-        bot.send_message(
-            message.from_user.id,
-            "Поиск отменен. Выберите следующее действие.",
-            reply_markup=Main_mark_up,
-        )
+        bot_send_message(message, CANCEL_SEARCH)
     elif message.text.isnumeric():
         try:
             task_link = get_task_by_number(
-                data_service.get_tasks(), int(message.text)
+                task_service.get_tasks(), int(message.text)
             ).announcement_link
             text_of_message = "*Task {0}*\n {1}".format(message.text, task_link)
-            bot.send_message(
-                message.from_user.id,
-                text_of_message,
-                reply_markup=Main_mark_up,
-                parse_mode="Markdown",
-            )
+            bot_send_message(message, text_of_message)
         except AttributeError:
-            bot.send_message(
-                message.from_user.id,
-                "Задачи с таким номером не найдено. Попробуйте еще раз.",
-                reply_markup=cancel_mark_up,
-            )
+            bot_send_message(message, TASK_NUMBER_NOT_FOUND, cancel_mark_up)
             bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
     else:
         text_of_message = ""
-        for _task in data_service.get_tasks():
+        for _task in task_service.get_tasks():
             if _task.name.lower().find(message.text.lower()) != -1:
                 text_of_message += "*Task {0}: {1}*\n{2}\n\n".format(
                     _task.number, _task.name, _task.announcement_link
                 )
         if text_of_message == "":
-            bot.send_message(
-                message.from_user.id,
-                "Ни одной задачи не найдено. Попробуйте еще раз.",
-                reply_markup=cancel_mark_up,
-            )
+            bot_send_message(message, TASK_NOT_FOUND, cancel_mark_up)
             bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
         else:
             try:
-                bot.send_message(
-                    message.from_user.id,
-                    text_of_message,
-                    reply_markup=Main_mark_up,
-                    parse_mode="Markdown",
-                )
-                bot.send_message(
-                    message.from_user.id,
-                    "Выберите следующее действие.",
-                    reply_markup=Main_mark_up,
-                )
+                bot_send_message(message, text_of_message)
+                bot_send_message(message, CHOOSE_NEXT_ACTION)
             except Exception:
-                bot.send_message(
-                    message.from_user.id,
-                    "Найдено слишком много задач. Попробуйте ввести более корректный запрос.",
-                    reply_markup=cancel_mark_up,
-                )
+                bot_send_message(message, TOO_MANY_TASKS_FOUND, cancel_mark_up)
                 bot.register_next_step_handler_by_chat_id(
                     message.chat.id, search_result
                 )
@@ -265,14 +195,19 @@ def search_result(message):
 
 @bot.message_handler(content_types=["text"])
 def handle_message(message):
+    bot_send_message(message, UNKNOWN_COMMAND_RESPONSE)
+
+def bot_send_message(message, text, reply_markup=Main_mark_up, parse_mode="Markdown"):
     bot.send_message(
         message.from_user.id,
-        "Простите, я вас не понимаю. Попробуйте еще раз.",
-        reply_markup=Main_mark_up,
+        text,
+        reply_markup=reply_markup,
+        parse_mode=parse_mode
     )
 
-
+# ---------------------------------------
 # bot webhook
+# ---------------------------------------
 
 @server.route('/' + TOKEN, methods=['POST'])
 def getMessage():

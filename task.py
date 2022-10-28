@@ -1,29 +1,40 @@
-from enum import Enum
+import requests
+from config import *
+from models import *
+from requests.structures import CaseInsensitiveDict
 
+headers = CaseInsensitiveDict()
+headers["X-ACCESS-KEY"] = DATA_ACCESS_KEY
 
-class Complexity(Enum):
-    Easy = 10
-    Middle = 20
-    Hard = 30
+class TaskService:
+    def __init__(self, data=None, version=None):
+        self.data = data
+        self.version = version
 
+    def get_task_data(self):
+        if self.data is None or self.version != TASKS_URL_VERSION:
+            response = requests.get(TASKS_URL, headers=headers)
+            self.version = TASKS_URL_VERSION
+            self.data = (
+                response.json()["record"]
+                if response and response.status_code == 200
+                else None
+            )
+        return self.data
 
-complexityDict = {
-    Complexity.Easy: "Легкий",
-    Complexity.Middle: "Средний",
-    Complexity.Hard: "Тяжелый",
-}
+    def get_tasks(self):
+        tasks_from_server = self.get_task_data()["tasks"]
+        task_list = []
 
-
-class Task(object):
-    def __init__(
-        self, number, name, announcement_link, solution_link=None, level=None, tags=None
-    ):
-        self.number = number
-        self.name = name
-        self.announcement_link = announcement_link
-        self.solution_link = solution_link
-        self.level = level
-        self.tags = tags
-
-    def get_level(self):
-        return complexityDict[self.level]
+        for task in tasks_from_server:
+            task_list.append(
+                Task(
+                    task.get("id", None),
+                    task.get("name", None),
+                    task.get("announcement", None),
+                    task.get("solution", None),
+                    task.get("complexity", None),
+                    task.get("tags", None),
+                )
+            )
+        return task_list
