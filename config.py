@@ -1,0 +1,17 @@
+import os
+
+FEEDBACK_CHANNEL_ID = os.environ["FEEDBACK_CHANNEL_ID"]
+TOKEN = os.environ["BOT_TOKEN"]
+BASE_URL = os.environ["BASE_URL"]
+SERVER_URL = BASE_URL + TOKEN
+
+DATA_ACCESS_KEY = os.environ["DATA_ACCESS_KEY"]
+
+INFO_URL = os.environ["INFO_URL"]
+INFO_URL_VERSION = os.environ["INFO_URL_VERSION"]
+
+TASKS_URL = os.environ["TASKS_URL"]
+TASKS_URL_VERSION = os.environ["TASKS_URL_VERSION"]
+
+PUZZLES_URL = os.environ["PUZZLES_URL"]
+PUZZLES_URL_VERSION = os.environ["PUZZLES_URL_VERSION"]
