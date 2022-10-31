@@ -17,9 +17,9 @@ puzzle_service = PuzzleService()
 
 # Main markup
 Main_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
-Main_mark_up.row("Список задач", "Поиск")
-Main_mark_up.row("Получить задачу по сложности", "Книги")
-Main_mark_up.row("Головоломки", "Отправить")
+Main_mark_up.row("Задачи", "Головоломки")
+Main_mark_up.row("Книги", "Тесты")
+Main_mark_up.row("Поиск", "Отправить")
 
 # Send group markup
 send_groups_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
@@ -29,13 +29,19 @@ send_groups_mark_up.row("Отмена")
 # Task group markup
 categories_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 categories_mark_up.row("Легкие", "Средние", "Сложные")
-categories_mark_up.row("Случайная")
+categories_mark_up.row("Случайная", "Список задач")
 categories_mark_up.row("Отмена")
 
 # Puzzle group markup
 puzzles_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 puzzles_mark_up.row("Случайная")
 puzzles_mark_up.row("Отмена")
+
+# Test group markup
+tests_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
+tests_mark_up.row("C#.Base", "C#.Advanced")
+tests_mark_up.row("C#.OOP", "C#.LINQ")
+tests_mark_up.row("Отмена")
 
 # Cancel markup
 cancel_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
@@ -62,21 +68,16 @@ def about(message):
 # ---------------------------------------
 # Main markup
 # ---------------------------------------
-@bot.message_handler(regexp="Список задач")
-def task_handler(message):
-    bot_send_message(message, info_service.get_all_tasks_link())
-
-
-@bot.message_handler(regexp="Поиск")
-def search(message):
-    bot_send_message(message, ENTER_TASK_NUMBER, cancel_mark_up)
-    bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
-
-
-@bot.message_handler(regexp="Получить задачу по сложности")
+@bot.message_handler(regexp="Задачи")
 def get_task(message):
     bot_send_message(message, CHOOSE_CATEGORY, categories_mark_up)
     bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
+
+
+@bot.message_handler(regexp="Головоломки")
+def get_puzzle(message):
+    bot_send_message(message, CHOOSE_CATEGORY, puzzles_mark_up)
+    bot.register_next_step_handler_by_chat_id(message.chat.id, puzzles)
 
 
 @bot.message_handler(regexp="Книги")
@@ -84,10 +85,16 @@ def books(message):
     bot_send_message(message, info_service.get_books_message())
 
 
-@bot.message_handler(regexp="Головоломки")
+@bot.message_handler(regexp="Тесты")
 def get_puzzle(message):
-    bot_send_message(message, CHOOSE_CATEGORY, puzzles_mark_up)
-    bot.register_next_step_handler_by_chat_id(message.chat.id, puzzles)
+    bot_send_message(message, CHOOSE_CATEGORY, tests_mark_up)
+    bot.register_next_step_handler_by_chat_id(message.chat.id, tests)
+
+
+@bot.message_handler(regexp="Поиск")
+def search(message):
+    bot_send_message(message, ENTER_TASK_NUMBER, cancel_mark_up)
+    bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
 
 
 @bot.message_handler(regexp="Отправить")
@@ -121,7 +128,7 @@ def categories(message):
             bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
         else:
             text = info_service.get_categories_dict()[message.text]
-            bot_send_message(message, text)
+            bot_send_message(message, text, categories_mark_up)
     except KeyError:
         bot_send_message(message, CATEGORY_NOT_FOUND, categories_mark_up)
         bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
@@ -141,6 +148,19 @@ def puzzles(message):
     except KeyError:
         bot_send_message(message, CATEGORY_NOT_FOUND, puzzles_mark_up)
         bot.register_next_step_handler_by_chat_id(message.chat.id, puzzles)
+
+
+def tests(message):
+    try:
+        if "Отмена" in message.text:
+            bot_send_message(message, CANCEL_PUZZLES)
+        else:
+            text = info_service.get_tests_dict()[message.text]
+            bot_send_message(message, text, tests_mark_up)
+            bot.register_next_step_handler_by_chat_id(message.chat.id, tests)
+    except KeyError:
+        bot_send_message(message, CATEGORY_NOT_FOUND, puzzles_mark_up)
+        bot.register_next_step_handler_by_chat_id(message.chat.id, tests)
 
 
 def feedback(message):
