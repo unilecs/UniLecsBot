@@ -25,10 +25,10 @@ class InfoService:
         books_message = self.get_info_data()["books"]
         return books_message
 
-    def get_all_tasks_link(self):
-        books_message = self.get_info_data()["all_tasks"]
-        return books_message
-
     def get_categories_dict(self):
         categories_dict = self.get_info_data()["categories"]
         return categories_dict
+
+    def get_tests_dict(self):
+        tests_dict = self.get_info_data()["tests"]
+        return tests_dict
