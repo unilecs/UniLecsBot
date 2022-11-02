@@ -27,10 +27,10 @@ send_groups_mark_up.row("Отзыв", "Решение")
 send_groups_mark_up.row("Отмена")
 
 # Task group markup
-categories_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
-categories_mark_up.row("Легкие", "Средние", "Сложные")
-categories_mark_up.row("Случайная", "Список задач")
-categories_mark_up.row("Отмена")
+tasks_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
+tasks_mark_up.row("Легкие", "Средние", "Сложные")
+tasks_mark_up.row("Случайная", "Список задач")
+tasks_mark_up.row("Отмена")
 
 # Puzzle group markup
 puzzles_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
@@ -68,35 +68,36 @@ def about(message):
 # ---------------------------------------
 # Main markup
 # ---------------------------------------
+@bot.message_handler(commands=["tasks"])
 @bot.message_handler(regexp="Задачи")
 def get_task(message):
-    bot_send_message(message, CHOOSE_CATEGORY, categories_mark_up)
-    bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
+    bot_send_message(message, CHOOSE_CATEGORY, tasks_mark_up)
+    bot.register_next_step_handler_by_chat_id(message.chat.id, tasks)
 
-
+@bot.message_handler(commands=["puzzles"])
 @bot.message_handler(regexp="Головоломки")
 def get_puzzle(message):
     bot_send_message(message, CHOOSE_CATEGORY, puzzles_mark_up)
     bot.register_next_step_handler_by_chat_id(message.chat.id, puzzles)
 
-
+@bot.message_handler(commands=["books"])
 @bot.message_handler(regexp="Книги")
 def books(message):
     bot_send_message(message, info_service.get_books_message())
 
-
+@bot.message_handler(commands=["tests"])
 @bot.message_handler(regexp="Тесты")
 def get_puzzle(message):
     bot_send_message(message, CHOOSE_CATEGORY, tests_mark_up)
     bot.register_next_step_handler_by_chat_id(message.chat.id, tests)
 
-
+@bot.message_handler(commands=["search"])
 @bot.message_handler(regexp="Поиск")
 def search(message):
     bot_send_message(message, ENTER_TASK_NUMBER, cancel_mark_up)
     bot.register_next_step_handler_by_chat_id(message.chat.id, search_result)
 
-
+@bot.message_handler(commands=["send"])
 @bot.message_handler(regexp="Отправить")
 def send_handler(message):
     bot_send_message(message, CHOOSE_WHAT_TO_SEND, send_groups_mark_up)
@@ -119,19 +120,22 @@ def send_groups(message):
         bot_send_message(message, UNKNOWN_COMMAND_RESPONSE)
 
 
-def categories(message):
+def tasks(message):
     try:
         if "Случайная" in message.text:
             random_task = get_random_task(task_service.get_tasks())
             text = RANDOM_TASK.format(random_task.number, random_task.name, random_task.announcement_link)
-            bot_send_message(message, text, categories_mark_up)
-            bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
+            bot_send_message(message, text, tasks_mark_up)
+            bot.register_next_step_handler_by_chat_id(message.chat.id, tasks)
+        elif "Отмена" in message.text:
+            bot_send_message(message, CANCEL_TASKS)
         else:
             text = info_service.get_categories_dict()[message.text]
-            bot_send_message(message, text, categories_mark_up)
+            bot_send_message(message, text, tasks_mark_up)
+            bot.register_next_step_handler_by_chat_id(message.chat.id, tasks)
     except KeyError:
-        bot_send_message(message, CATEGORY_NOT_FOUND, categories_mark_up)
-        bot.register_next_step_handler_by_chat_id(message.chat.id, categories)
+        bot_send_message(message, CATEGORY_NOT_FOUND, tasks_mark_up)
+        bot.register_next_step_handler_by_chat_id(message.chat.id, tasks)
 
 
 def puzzles(message):
@@ -153,7 +157,7 @@ def puzzles(message):
 def tests(message):
     try:
         if "Отмена" in message.text:
-            bot_send_message(message, CANCEL_PUZZLES)
+            bot_send_message(message, CANCEL_TESTS)
         else:
             text = info_service.get_tests_dict()[message.text]
             bot_send_message(message, text, tests_mark_up)
