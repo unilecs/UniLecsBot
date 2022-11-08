@@ -3,17 +3,17 @@ from constants import *
 from random import randint
 from datetime import datetime
 
-def get_task_by_number(tasks, number):
+def get_item_by_number(items, number):
     try:
-        return next((x for x in tasks if x.number == number), None)
+        return next((x for x in items if x.number == number), None)
     except:
         return None
 
 
-def get_random_task(tasks):
-    rand = randint(1, len(tasks))
-    if 1 <= rand <= len(tasks):
-        return get_task_by_number(tasks, rand)
+def get_random_item(items):
+    rand = randint(1, len(items))
+    if 1 <= rand <= len(items):
+        return get_item_by_number(items, rand)
     else:
         return None
 
