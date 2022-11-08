@@ -1,5 +1,9 @@
 from enum import Enum
 
+class SendType(Enum):
+    Feedback = 10
+    Solution = 20
+
 class Complexity(Enum):
     Easy = 10
     Middle = 20
@@ -35,3 +39,16 @@ class Puzzle(object):
         self.announcement_link = announcement_link
         self.solution_link = solution_link
         self.tags = tags
+
+class Event(object):
+    def __init__(
+        self, number, name, description, date, link, type, location=None, time=None
+    ):
+        self.number = number
+        self.name = name
+        self.description = description
+        self.date = date
+        self.link = link
+        self.type = type
+        self.location = location
+        self.time = time
