@@ -44,6 +44,12 @@ events_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 events_mark_up.row("Прошедшие", "Предстоящие")
 events_mark_up.row("Отмена")
 
+# Books group markup
+books_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
+books_mark_up.row("Программирование", "Алгоритмы")
+books_mark_up.row("Идеальный программист")
+books_mark_up.row("Отмена")
+
 # Cancel markup
 cancel_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 cancel_mark_up.row("Отмена")
@@ -81,8 +87,8 @@ def get_puzzle(message):
 
 @bot.message_handler(commands=["books"])
 @bot.message_handler(regexp="Книги")
-def books(message):
-    bot_send_message(message, data_manager.get_books())
+def get_books_handler(message):
+    bot_send_message(message, CHOOSE_CATEGORY, books_mark_up, books)
 
 @bot.message_handler(commands=["tests"])
 @bot.message_handler(regexp="Тесты")
@@ -148,6 +154,17 @@ def puzzles(message):
         bot_send_message(message, CATEGORY_NOT_FOUND, puzzles_mark_up, puzzles)
 
 
+def books(message):
+    try:
+        if "Отмена" in message.text:
+            bot_send_message(message, CANCEL_BOOKS)
+        else:
+            book_list = data_manager.get_books(message.text)
+            bot_send_message(message, book_list, books_mark_up, books)
+    except KeyError:
+        bot_send_message(message, CATEGORY_NOT_FOUND, books_mark_up, books)
+
+
 def tests(message):
     try:
         if "Отмена" in message.text:
@@ -156,7 +173,7 @@ def tests(message):
             text = data_manager.get_test(message.text)
             bot_send_message(message, text, tests_mark_up, tests)
     except KeyError:
-        bot_send_message(message, CATEGORY_NOT_FOUND, puzzles_mark_up, tests)
+        bot_send_message(message, CATEGORY_NOT_FOUND, tests_mark_up, tests)
 
 
 def events(message):
