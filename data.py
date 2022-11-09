@@ -11,8 +11,8 @@ puzzle_service = PuzzleService()
 event_service = EventService()
 
 class DataManager:
-    def get_books(self):
-        return info_service.get_books_message()
+    def get_books(self, books_type):
+        return info_service.get_books_dict()[books_type]
 
     def get_task_list(self):
         return info_service.get_categories_dict()

@@ -21,7 +21,7 @@ class InfoService:
             )
         return self.data
 
-    def get_books_message(self):
+    def get_books_dict(self):
         books_message = self.get_info_data()["books"]
         return books_message
 
