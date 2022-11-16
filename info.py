@@ -32,3 +32,7 @@ class InfoService:
     def get_tests_dict(self):
         tests_dict = self.get_info_data()["tests"]
         return tests_dict
+
+    def get_interview(self):
+        interview_list = self.get_info_data()["interview"]
+        return interview_list
