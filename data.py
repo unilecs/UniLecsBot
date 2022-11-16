@@ -20,6 +20,9 @@ class DataManager:
     def get_test(self, test):
         return info_service.get_tests_dict()[test]
 
+    def get_interview(self):
+        return info_service.get_interview()
+
     def get_past_events(self):
         events_str = ""
         for event in event_service.get_past_events():

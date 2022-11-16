@@ -14,8 +14,13 @@ data_manager = DataManager()
 # Main markup
 Main_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 Main_mark_up.row("Задачи", "Головоломки")
-Main_mark_up.row("Книги", "Тесты", "События")
+Main_mark_up.row("Материалы", "События")
 Main_mark_up.row("Поиск", "Отправить")
+
+# Material group markup
+mat_mark_group = telebot.types.ReplyKeyboardMarkup(True, False)
+mat_mark_group.row("Книги", "Тесты", "Интервью")
+mat_mark_group.row("Отмена")
 
 # Send group markup
 send_groups_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
@@ -85,6 +90,10 @@ def get_task(message):
 def get_puzzle(message):
     bot_send_message(message, CHOOSE_CATEGORY, puzzles_mark_up, puzzles)
 
+@bot.message_handler(regexp="Материалы")
+def get_content(message):
+    bot_send_message(message, CHOOSE_CATEGORY, mat_mark_group)
+
 @bot.message_handler(commands=["books"])
 @bot.message_handler(regexp="Книги")
 def get_books_handler(message):
@@ -94,6 +103,11 @@ def get_books_handler(message):
 @bot.message_handler(regexp="Тесты")
 def get_puzzle(message):
     bot_send_message(message, CHOOSE_CATEGORY, tests_mark_up, tests)
+
+@bot.message_handler(commands=["interview"])
+@bot.message_handler(regexp="Интервью")
+def get_books_handler(message):
+    bot_send_message(message, data_manager.get_interview(), mat_mark_group)
 
 @bot.message_handler(commands=["events"])
 @bot.message_handler(regexp="События")
