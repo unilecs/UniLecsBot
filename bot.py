@@ -1,9 +1,10 @@
 ﻿import os
+
 import telebot
-from config import *
-from data import *
-from constants import *
 from flask import Flask, request
+
+from config import *
+from core import *
 
 # bot config
 bot = telebot.TeleBot(TOKEN)
@@ -59,6 +60,7 @@ books_mark_up.row("Отмена")
 cancel_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 cancel_mark_up.row("Отмена")
 
+
 # ---------------------------------------
 # bot commands
 # ---------------------------------------
@@ -85,39 +87,47 @@ def about(message):
 def get_task(message):
     bot_send_message(message, CHOOSE_CATEGORY, tasks_mark_up, tasks)
 
+
 @bot.message_handler(commands=["puzzles"])
 @bot.message_handler(regexp="Головоломки")
 def get_puzzle(message):
     bot_send_message(message, CHOOSE_CATEGORY, puzzles_mark_up, puzzles)
 
+
 @bot.message_handler(regexp="Материалы")
 def get_content(message):
     bot_send_message(message, CHOOSE_CATEGORY, mat_mark_group)
+
 
 @bot.message_handler(commands=["books"])
 @bot.message_handler(regexp="Книги")
 def get_books_handler(message):
     bot_send_message(message, CHOOSE_CATEGORY, books_mark_up, books)
 
+
 @bot.message_handler(commands=["tests"])
 @bot.message_handler(regexp="Тесты")
 def get_puzzle(message):
     bot_send_message(message, CHOOSE_CATEGORY, tests_mark_up, tests)
+
 
 @bot.message_handler(commands=["interview"])
 @bot.message_handler(regexp="Интервью")
 def get_books_handler(message):
     bot_send_message(message, data_manager.get_interview(), mat_mark_group)
 
+
 @bot.message_handler(commands=["events"])
 @bot.message_handler(regexp="События")
 def get_event(message):
     bot_send_message(message, CHOOSE_CATEGORY, events_mark_up, events)
 
+
 @bot.message_handler(commands=["search"])
 @bot.message_handler(regexp="Поиск")
 def search(message):
     bot_send_message(message, ENTER_TASK_NUMBER, cancel_mark_up, search_result)
+
 
 @bot.message_handler(commands=["send"])
 @bot.message_handler(regexp="Отправить")
@@ -131,7 +141,7 @@ def send_handler(message):
 def send_groups(message):
     if "Отзыв" in message.text:
         bot_send_message(message, SEND_FEEDBACK, cancel_mark_up)
-        bot.register_next_step_handler_by_chat_id(message.chat.id, send_user_message, SendType.Feedback)            
+        bot.register_next_step_handler_by_chat_id(message.chat.id, send_user_message, SendType.Feedback)
     elif "Решение" in message.text:
         bot_send_message(message, SEND_SOLUTION, cancel_mark_up)
         bot.register_next_step_handler_by_chat_id(message.chat.id, send_user_message, SendType.Solution)
@@ -252,6 +262,7 @@ def bot_send_message(message, text, reply_markup=Main_mark_up, callback=None):
     if callback is not None:
         bot.register_next_step_handler_by_chat_id(message.chat.id, callback)
 
+
 # ---------------------------------------
 # bot webhook
 # ---------------------------------------
@@ -267,6 +278,7 @@ def webhook():
     bot.remove_webhook()
     bot.set_webhook(url=SERVER_URL)
     return "!", 200
+
 
 if __name__ == "__main__":
     server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))

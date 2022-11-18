@@ -1,7 +1,9 @@
 # UniLecs Bot
+
 Официальный бот телеграм канала [UniLecs](https://t.me/unilecs)
 
 ## Bot Commands
+
 ![Welcome message](https://github.com/unilecs/UniLecsBot/blob/master/screenshots/unilecs_bot_screenshot.png)
 
 - **Список задач:** ссылка на пост с задачами канала.
@@ -12,16 +14,19 @@
 - **Отправить:** форма отправки решений задач / отзывов.
 
 ## Links
+
 - [Telegram Docs](https://core.telegram.org/api)
 - [Библиотека pyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI)
 - [Heroku Server](https://www.heroku.com/)
 
 ## Community
+
 - [UniLecs Telegram Channel](https://t.me/unilecs)
 - [UniLecs Telegram Chat](https://t.me/unilecs_chat)
 - [UniLecs Telegram Bot](https://t.me/unilecsBot)
 
 ## Contributing
+
 Contributions of all sizes are welcome.
 
 ## License
