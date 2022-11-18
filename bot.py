@@ -10,8 +10,6 @@ from core import *
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
 
-data_manager = DataManager()
-
 # Main markup
 Main_mark_up = telebot.types.ReplyKeyboardMarkup(True, False)
 Main_mark_up.row("Задачи", "Головоломки")
@@ -114,7 +112,7 @@ def get_puzzle(message):
 @bot.message_handler(commands=["interview"])
 @bot.message_handler(regexp="Интервью")
 def get_books_handler(message):
-    bot_send_message(message, data_manager.get_interview(), mat_mark_group)
+    bot_send_message(message, DataManager.get_interview(), mat_mark_group)
 
 
 @bot.message_handler(commands=["events"])
@@ -154,12 +152,12 @@ def send_groups(message):
 def tasks(message):
     try:
         if "Случайная" in message.text:
-            text = data_manager.get_random_task()
+            text = DataManager.get_random_task()
             bot_send_message(message, text, tasks_mark_up, tasks)
         elif "Отмена" in message.text:
             bot_send_message(message, CANCEL_TASKS)
         else:
-            text = data_manager.get_task_list()[message.text]
+            text = DataManager.get_task_list()[message.text]
             bot_send_message(message, text, tasks_mark_up, tasks)
     except KeyError:
         bot_send_message(message, CATEGORY_NOT_FOUND, tasks_mark_up, tasks)
@@ -168,7 +166,7 @@ def tasks(message):
 def puzzles(message):
     try:
         if "Случайная" in message.text:
-            text = data_manager.get_random_puzzle()
+            text = DataManager.get_random_puzzle()
             bot_send_message(message, text, puzzles_mark_up, puzzles)
         elif "Отмена" in message.text:
             bot_send_message(message, CANCEL_PUZZLES)
@@ -183,7 +181,7 @@ def books(message):
         if "Отмена" in message.text:
             bot_send_message(message, CANCEL_BOOKS)
         else:
-            book_list = data_manager.get_books(message.text)
+            book_list = DataManager.get_books(message.text)
             bot_send_message(message, book_list, books_mark_up, books)
     except KeyError:
         bot_send_message(message, CATEGORY_NOT_FOUND, books_mark_up, books)
@@ -194,7 +192,7 @@ def tests(message):
         if "Отмена" in message.text:
             bot_send_message(message, CANCEL_TESTS)
         else:
-            text = data_manager.get_test(message.text)
+            text = DataManager.get_test(message.text)
             bot_send_message(message, text, tests_mark_up, tests)
     except KeyError:
         bot_send_message(message, CATEGORY_NOT_FOUND, tests_mark_up, tests)
@@ -203,11 +201,11 @@ def tests(message):
 def events(message):
     try:
         if "Прошедшие" in message.text:
-            text_result = data_manager.get_past_events()
+            text_result = DataManager.get_past_events()
             bot_send_message(message, text_result, events_mark_up, events)
 
         elif "Предстоящие" in message.text:
-            text_result = data_manager.get_upcoming_events()
+            text_result = DataManager.get_upcoming_events()
             bot_send_message(message, text_result, events_mark_up, events)
 
         elif "Отмена" in message.text:
@@ -231,12 +229,12 @@ def search_result(message):
         bot_send_message(message, CANCEL_SEARCH)
     elif message.text.isnumeric():
         try:
-            text_of_message = data_manager.get_task_by_number(int(message.text))
+            text_of_message = DataManager.get_task_by_number(int(message.text))
             bot_send_message(message, text_of_message)
         except AttributeError:
             bot_send_message(message, TASK_NUMBER_NOT_FOUND, cancel_mark_up, search_result)
     else:
-        text_of_message = data_manager.get_tasks_by_search(message.text)
+        text_of_message = DataManager.get_tasks_by_search(message.text)
         if text_of_message == "":
             bot_send_message(message, TASK_NOT_FOUND, cancel_mark_up, search_result)
         else:
