@@ -1,11 +1,14 @@
+from core.models import Event
+from config import EVENTS_URL, EVENTS_URL_VERSION, DATA_ACCESS_KEY
+
 import requests
-from config import *
-from models import *
 from datetime import datetime
 from requests.structures import CaseInsensitiveDict
 
+
 headers = CaseInsensitiveDict()
 headers["X-ACCESS-KEY"] = DATA_ACCESS_KEY
+
 
 class EventService:
     def __init__(self, data=None, version=None):
@@ -50,7 +53,7 @@ class EventService:
             event_date = datetime.strptime(event.date, "%d-%m-%Y")
             if datetime.today() > event_date:
                 past_events_list.append(event)
-        
+
         return past_events_list
 
     def get_upcoming_events(self):
@@ -61,6 +64,5 @@ class EventService:
             event_date = datetime.strptime(event.date, "%d-%m-%Y")
             if datetime.today() <= event_date:
                 upcoming_events_list.append(event)
-        
-        return upcoming_events_list
 
+        return upcoming_events_list

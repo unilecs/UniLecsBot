@@ -1,9 +1,11 @@
+from config import TASKS_URL, TASKS_URL_VERSION, INFO_URL, DATA_ACCESS_KEY
+
 import requests
-from config import *
 from requests.structures import CaseInsensitiveDict
 
 headers = CaseInsensitiveDict()
 headers["X-ACCESS-KEY"] = DATA_ACCESS_KEY
+
 
 class InfoService:
     def __init__(self, data=None, version=None):

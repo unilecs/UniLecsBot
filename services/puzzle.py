@@ -1,10 +1,13 @@
+from core.models import Puzzle
+from config import PUZZLES_URL, PUZZLES_URL_VERSION, DATA_ACCESS_KEY
+
 import requests
-from config import *
-from models import *
 from requests.structures import CaseInsensitiveDict
+
 
 headers = CaseInsensitiveDict()
 headers["X-ACCESS-KEY"] = DATA_ACCESS_KEY
+
 
 class PuzzleService:
     def __init__(self, data=None, version=None):
