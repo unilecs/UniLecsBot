@@ -1,4 +1,4 @@
-from config import TASKS_URL, TASKS_URL_VERSION, INFO_URL, DATA_ACCESS_KEY
+from config import INFO_URL_VERSION, INFO_URL, DATA_ACCESS_KEY
 
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -13,9 +13,9 @@ class InfoService:
         self.version = version
 
     def get_info_data(self):
-        if self.data is None or self.version != TASKS_URL_VERSION:
+        if self.data is None or self.version != INFO_URL_VERSION:
             response = requests.get(INFO_URL, headers=headers)
-            self.version = TASKS_URL_VERSION
+            self.version = INFO_URL_VERSION
             self.data = (
                 response.json()["record"]
                 if response and response.status_code == 200
